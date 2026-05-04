@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: medibook_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB:       medibook_auth
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Auth Microservice ───────────────────────────────────────────────────────
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medibook_auth_service
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5000
+      # DB
+      ConnectionStrings__AuthDb: "Host=postgres;Port=5432;Database=medibook_auth;Username=postgres;Password=postgres"
+      # JWT  ← In production, inject via secret manager / Kubernetes secret
+      JwtSettings__SecretKey:              "DOCKER_DEV_SECRET_KEY_32_CHARS_MIN_CHANGE_IN_PROD!!"
+      JwtSettings__Issuer:                 "MediBook.Auth"
+      JwtSettings__Audience:               "MediBook.Client"
+      JwtSettings__AccessTokenExpiryMinutes: "60"
+      JwtSettings__RefreshTokenExpiryDays:   "7"
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
