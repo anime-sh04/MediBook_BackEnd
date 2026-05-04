@@ -4,7 +4,7 @@ JWT-based authentication service for MediBook with **Google OAuth2** and **GitHu
 
 ---
 
-## Endpoints
+## Endpoint
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
