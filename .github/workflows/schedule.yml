@@ -1,0 +1,31 @@
+name: Deploy Schedule Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'schedule-service/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish Schedule
+        run: dotnet publish ./schedule-service/src/MediBook.Schedule.API/MediBook.Schedule.API.csproj -c Release -o ./publish
+
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: medibook-schedule
+          publish-profile: ${{ secrets.SCHEDULE_PUBLISH_PROFILE }}
+          package: ./publish
