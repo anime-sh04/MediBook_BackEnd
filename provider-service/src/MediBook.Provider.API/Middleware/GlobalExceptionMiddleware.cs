@@ -31,6 +31,7 @@ public class GlobalExceptionMiddleware
         }
         catch (Exception ex)
         {
+			Console.WriteLine("🔥 ERROR: " + ex.ToString());
             _logger.LogError(ex, "An unhandled exception occurred.");
             await HandleExceptionAsync(context, ex, HttpStatusCode.InternalServerError, "An unexpected error occurred. Please try again later.");
         }
