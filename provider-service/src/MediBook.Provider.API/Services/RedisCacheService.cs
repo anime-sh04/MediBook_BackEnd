@@ -16,7 +16,7 @@ public sealed class RedisCacheService
         {
             var value = await _db.StringGetAsync(key);
             if (value.IsNullOrEmpty) return default;
-
+    
             return JsonSerializer.Deserialize<T>(value!);
         }
         catch (Exception ex)
@@ -26,11 +26,12 @@ public sealed class RedisCacheService
         }
     }
 
-    public async Task SetAsync<T>(string key, T value)
+    public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null)
     {
         try
         {
-            await _db.StringSetAsync(key, JsonSerializer.Serialize(value));
+            var json = JsonSerializer.Serialize(value);
+            await _db.StringSetAsync(key, json, expiry);
         }
         catch (Exception ex)
         {
