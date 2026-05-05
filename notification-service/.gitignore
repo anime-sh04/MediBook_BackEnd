@@ -1,0 +1,22 @@
+## .NET gitignore
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.log
+
+## EF Core migrations (keep in source control)
+# !**/Migrations/
+
+## Secrets
+appsettings.Production.json
+appsettings.Secrets.json
+secrets.json
+
+## Docker
+.dockerignore
+
+## OS
+.DS_Store
+Thumbs.db

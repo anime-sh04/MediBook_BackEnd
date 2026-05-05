@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  notification-db:
+    image: postgres:16-alpine
+    container_name: medibook_notification_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       medibook_notifications
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    volumes:
+      - notification_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d medibook_notifications"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medibook_notification_service
+    restart: unless-stopped
+    ports:
+      - "5006:5006"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5006
+      ConnectionStrings__NotificationDb: >
+        Host=notification-db;Port=5432;Database=medibook_notifications;
+        Username=postgres;Password=postgres
+      JwtSettings__SecretKey:   CHANGE_THIS_IN_PRODUCTION_USE_32_CHAR_MIN_SECRET_KEY_HERE!!
+      JwtSettings__Issuer:      MediBook.Auth
+      JwtSettings__Audience:    MediBook.Client
+      EmailSettings__SmtpHost:  sandbox.smtp.mailtrap.io
+      EmailSettings__SmtpPort:  "587"
+      EmailSettings__UseSsl:    "false"
+      EmailSettings__Username:  MAILTRAP_USERNAME
+      EmailSettings__Password:  MAILTRAP_PASSWORD
+      EmailSettings__FromEmail: no-reply@medibook.com
+      EmailSettings__FromName:  MediBook
+    depends_on:
+      notification-db:
+        condition: service_healthy
+
+volumes:
+  notification_db_data:
