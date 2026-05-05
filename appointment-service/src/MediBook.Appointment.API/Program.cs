@@ -39,7 +39,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// ── Auto-apply EF migrations on startup ───────────────────────────────────────
+// Auto-apply EF migrations on startup
 using (var scope = app.Services.CreateScope())
 {
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
