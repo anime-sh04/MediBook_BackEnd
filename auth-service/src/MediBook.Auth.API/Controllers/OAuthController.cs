@@ -79,7 +79,7 @@ public sealed class OAuthController : ControllerBase
         {
             _logger.LogInformation(
                 "OAuth consent denied. Provider={Provider} Error={Error}", provider, error);
-            return Redirect($"http://localhost:4200/login?error=oauth_denied");
+            return Redirect($"https://red-bay-0178e2c00.7.azurestaticapps.net/login?error=oauth_denied");
         }
 
         if (string.IsNullOrWhiteSpace(code))
@@ -94,7 +94,7 @@ public sealed class OAuthController : ControllerBase
             var response = await _oauthService.HandleCallbackAsync(provider, code, state, ip, ct);
 
             var redirectUrl =
-                $"http://localhost:4200/auth/oauth-success" +
+                $"https://red-bay-0178e2c00.7.azurestaticapps.net/auth/oauth-success" +
                 $"?accessToken={Uri.EscapeDataString(response.AccessToken)}" +
                 $"&refreshToken={Uri.EscapeDataString(response.RefreshToken)}";
 
