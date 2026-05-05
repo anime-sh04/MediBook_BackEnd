@@ -19,7 +19,6 @@ var app = builder.Build();
 
 app.UseCors("AllowAll");
 
-// 1. Global exception handler — must be first
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 // 2. Swagger always enabled (protected environments can gate via network/auth)
