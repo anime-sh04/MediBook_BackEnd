@@ -1,0 +1,25 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.vscode/
+*.log
+
+## Secrets — NEVER commit these
+appsettings.Development.json
+appsettings.json
+secrets.json
+*.pfx
+*.p12
+
+## Docker volumes
+postgres_data/
+
+## Rider / JetBrains
+.idea/
+
+## OS
+.DS_Store
+Thumbs.db
