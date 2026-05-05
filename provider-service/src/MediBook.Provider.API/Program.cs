@@ -15,6 +15,10 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 var app = builder.Build();
 
 app.UseCors("AllowAll");
@@ -36,6 +40,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
 
 // ── Auto-apply EF migrations on startup ───────────────────────────────────────
 
