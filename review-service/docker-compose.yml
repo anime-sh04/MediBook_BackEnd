@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  review-db:
+    image: postgres:16-alpine
+    container_name: medibook_review_db
+    environment:
+      POSTGRES_DB: medibook_review
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    volumes:
+      - review_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  review-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medibook_review_service
+    ports:
+      - "5006:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__ReviewDb: >
+        Host=review-db;Port=5432;Database=medibook_review;
+        Username=postgres;Password=postgres
+      JwtSettings__SecretKey: CHANGE_THIS_IN_PRODUCTION_USE_32_CHAR_MIN_SECRET_KEY_HERE!!
+      JwtSettings__Issuer: MediBook.Auth
+      JwtSettings__Audience: MediBook.Client
+      ServiceClients__ProviderServiceBaseUrl: http://host.docker.internal:5001
+    depends_on:
+      review-db:
+        condition: service_healthy
+    restart: on-failure
+
+volumes:
+  review_pgdata:

@@ -1,0 +1,22 @@
+## .NET / C#
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.DotSettings.user
+
+## Rider / JetBrains
+.idea/
+
+## VS Code
+.vscode/
+
+## Environment / secrets
+appsettings.Production.json
+.env
+
+## EF Core migrations temp
+*.db
+*.db-shm
+*.db-wal
