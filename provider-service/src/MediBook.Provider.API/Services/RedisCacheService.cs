@@ -12,15 +12,30 @@ public sealed class RedisCacheService
 
     public async Task<T?> GetAsync<T>(string key)
     {
-        var value = await _db.StringGetAsync(key);
-        if (value.IsNullOrEmpty) return default;
-        return JsonSerializer.Deserialize<T>(value!);
+        try
+        {
+            var value = await _db.StringGetAsync(key);
+            if (value.IsNullOrEmpty) return default;
+
+            return JsonSerializer.Deserialize<T>(value!);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("⚠️ Redis failed: " + ex.Message);
+            return default; // fallback to DB
+        }
     }
 
-    public async Task SetAsync<T>(string key, T value, TimeSpan expiry)
+    public async Task SetAsync<T>(string key, T value)
     {
-        var json = JsonSerializer.Serialize(value);
-        await _db.StringSetAsync(key, json, expiry);
+        try
+        {
+            await _db.StringSetAsync(key, JsonSerializer.Serialize(value));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("⚠️ Redis SET failed: " + ex.Message);
+        }
     }
 
     public async Task RemoveAsync(string key)
