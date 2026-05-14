@@ -3,7 +3,7 @@ using MediBook.Payment.API.Messaging.Infrastructure;
 using MediBook.Payment.API.Extensions;
 using MediBook.Payment.API.Middleware;
 using Microsoft.EntityFrameworkCore;
-
+using MediBook.Payment.API.Messaging.Consumers;
 var builder = WebApplication.CreateBuilder(args);
 
 // ✅ ADD CORS BEFORE BUILD
@@ -16,6 +16,7 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader());
 });
 
+builder.Services.AddHostedService<PaymentRequestedConsumer>();
 
 builder.Services.AddPaymentServices(builder.Configuration);
 builder.Services.AddHttpContextAccessor();
