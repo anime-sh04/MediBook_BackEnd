@@ -254,9 +254,14 @@ public sealed class PaymentRequestedConsumer : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,
-                "[Payment] Error processing {EventType} — requeuing for retry.", typeof(T).Name);
-            _channel?.BasicNack(ea.DeliveryTag, multiple: false, requeue: true);
+            File.AppendAllText(
+                @"C:\home\LogFiles\payment-errors.txt",
+                $"\n\n[{DateTime.UtcNow}]\n{ex}\n");
+        
+            Console.WriteLine("===== PAYMENT ERROR =====");
+            Console.WriteLine(ex.ToString());
+        
+            _channel?.BasicNack(ea.DeliveryTag, multiple: false, requeue: false);
         }
     }
 
