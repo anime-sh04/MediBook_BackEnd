@@ -90,5 +90,21 @@ app.MapGet("/jwt-debug", (IConfiguration config) =>
         Secret = config["JwtSettings:SecretKey"]
     });
 });
+app.MapGet("/debug/slot/{id:int}", async (
+    int id,
+    ScheduleDbContext db) =>
+{
+    var slot = await db.AvailabilitySlots.FindAsync(id);
 
+    if (slot is null)
+        return Results.NotFound();
+
+    return Results.Ok(new
+    {
+        slot.SlotId,
+        slot.Price,
+        slot.ProviderId,
+        slot.Date
+    });
+});
 app.Run();
