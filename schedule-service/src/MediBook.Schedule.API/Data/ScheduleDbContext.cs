@@ -75,6 +75,11 @@ public sealed class ScheduleDbContext : DbContext
 
             entity.HasIndex(s => new { s.ProviderId, s.IsBooked, s.IsBlocked })
                   .HasDatabaseName("ix_availability_slots_provider_available");
+            
+            entity.Property(s => s.Price)
+                  .HasColumnName("Price")
+                  .HasColumnType("numeric(10,2)")
+                  .IsRequired();
         });
     }
 }
