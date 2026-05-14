@@ -41,8 +41,16 @@ public static class ServiceCollectionExtensions
         services.AddValidatorsFromAssemblyContaining<Program>();
 
         // ── JWT ───────────────────────────────────────────────────────────────
+        // ── JWT ───────────────────────────────────────────────────────────────
         var jwtSettings = new JwtSettings();
         configuration.Bind(JwtSettings.SectionName, jwtSettings);
+
+        Console.WriteLine("===== JWT SETTINGS =====");
+        Console.WriteLine($"Issuer: {jwtSettings.Issuer}");
+        Console.WriteLine($"Audience: {jwtSettings.Audience}");
+        Console.WriteLine($"SecretKey: {jwtSettings.SecretKey}");
+        Console.WriteLine("========================");
+
         services.AddSingleton(jwtSettings);
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -50,17 +58,48 @@ public static class ServiceCollectionExtensions
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer           = true,
-                    ValidateAudience         = true,
-                    ValidateLifetime         = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer              = jwtSettings.Issuer,
-                    ValidAudience            = jwtSettings.Audience,
-                    IssuerSigningKey         = new SymmetricSecurityKey(
-                                                  Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
+
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine("===== AUTH FAILED =====");
+                        Console.WriteLine(context.Exception.ToString());
+                        Console.WriteLine("=======================");
+                        return Task.CompletedTask;
+                    },
+
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine("===== TOKEN VALIDATED =====");
+                        Console.WriteLine($"User: {context.Principal?.Identity?.Name}");
+                        Console.WriteLine("===========================");
+                        return Task.CompletedTask;
+                    },
+
+                    OnChallenge = context =>
+                    {
+                        Console.WriteLine("===== JWT CHALLENGE =====");
+                        Console.WriteLine($"Error: {context.Error}");
+                        Console.WriteLine($"Description: {context.ErrorDescription}");
+                        Console.WriteLine("=========================");
+                        return Task.CompletedTask;
+                    }
                 };
             });
-
         services.AddAuthorization();
 
         // ── Swagger ───────────────────────────────────────────────────────────
