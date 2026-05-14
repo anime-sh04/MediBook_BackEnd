@@ -43,60 +43,24 @@ public static class ServiceCollectionExtensions
         // ── JWT ───────────────────────────────────────────────────────────────
         var jwtSettings = new JwtSettings();
         configuration.Bind(JwtSettings.SectionName, jwtSettings);
-        Console.WriteLine("===== JWT SETTINGS =====");
-        Console.WriteLine(jwtSettings.Issuer);
-        Console.WriteLine(jwtSettings.Audience);
-        Console.WriteLine(jwtSettings.SecretKey);
-        Console.WriteLine("========================");
         services.AddSingleton(jwtSettings);
-
-        // services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        //     .AddJwtBearer(options =>
-        //     {
-        //         options.TokenValidationParameters = new TokenValidationParameters
-        //         {
-        //             ValidateIssuer           = true,
-        //             ValidateAudience         = true,
-        //             ValidateLifetime         = true,
-        //             ValidateIssuerSigningKey = true,
-        //             ValidIssuer              = jwtSettings.Issuer,
-        //             ValidAudience            = jwtSettings.Audience,
-        //             IssuerSigningKey         = new SymmetricSecurityKey(
-        //                                           Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
-        //         };
-        //     });
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
+                    ValidateIssuer           = true,
+                    ValidateAudience         = true,
+                    ValidateLifetime         = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings.Issuer,
-                    ValidAudience = jwtSettings.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
-                };
-
-                options.Events = new JwtBearerEvents
-                {
-                    OnAuthenticationFailed = ctx =>
-                    {
-                        Console.WriteLine("AUTH FAILED:");
-                        Console.WriteLine(ctx.Exception.ToString());
-                        return Task.CompletedTask;
-                    },
-
-                    OnTokenValidated = ctx =>
-                    {
-                        Console.WriteLine("TOKEN VALIDATED");
-                        return Task.CompletedTask;
-                    }
+                    ValidIssuer              = jwtSettings.Issuer,
+                    ValidAudience            = jwtSettings.Audience,
+                    IssuerSigningKey         = new SymmetricSecurityKey(
+                                                  Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
                 };
             });
+
         services.AddAuthorization();
 
         // ── Swagger ───────────────────────────────────────────────────────────
@@ -141,7 +105,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton(rabbitSettings);
         services.AddSingleton<RabbitMqConnectionFactory>();
-        services.AddSingleton<ISagaEventPublisher, SagaEventPublisher>();
+        services.AddSingleton<SagaEventPublisher>();
 
         // Background consumer for PaymentSucceeded / PaymentFailed events
         services.AddHostedService<PaymentResultConsumer>();
