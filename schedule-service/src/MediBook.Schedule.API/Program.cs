@@ -81,4 +81,14 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+app.MapGet("/jwt-debug", (IConfiguration config) =>
+{
+    return Results.Ok(new
+    {
+        Audience = config["JwtSettings:Audience"],
+        Issuer = config["JwtSettings:Issuer"],
+        Secret = config["JwtSettings:SecretKey"]
+    });
+});
+
 app.Run();
